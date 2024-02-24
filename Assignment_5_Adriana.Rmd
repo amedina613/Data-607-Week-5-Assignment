@@ -52,14 +52,14 @@ I want to transpose the destination information and make a new column called "De
 
 ```{r}
 raw_data <- raw_data %>%
-  pivot_longer(cols = c(Los.Angeles, Phoenix, San.Diego, San.Francisco, Seattle), names_to = "Destination", values_to = "num_of_flights")
+  pivot_longer(cols = c(Los.Angeles, Phoenix, San.Diego, San.Francisco, Seattle), names_to = "Destination", values_to = "Time")
 
 print(raw_data)
 ```
 # For the Arrival column I want to pivot that data from long to wide. I will use pivot_wider for this.
 ```{r}
 raw_data<- raw_data %>%
-  pivot_wider(names_from = Arrival, values_from = num_of_flights)
+  pivot_wider(names_from = Arrival, values_from = Time)
 
 print(raw_data)
 ```
@@ -79,17 +79,6 @@ print(airline_del)
 AM West has significantly more flight delays than Alaska Airlines
 
 
-```{r}
-delay_summary <- raw_data %>%
-  group_by(Airline) %>%
-  summarise(total_delayed = sum(delayed))
-
-print(delay_summary)
-
-```
-
-AM West has a total of 787 delayed flights. Alaska has a total of 501 delayed flights. 
-
 # Let's see how many flights have arrived on time.
 ```{r}
 airline_ot <- ggplot(raw_data, aes(x = Airline, y = `on time`, fill = Airline)) +
@@ -102,3 +91,19 @@ print(airline_ot)
 ```
 
 AM West has significantly more on time arrivals than Alaska airlines.
+
+# Let's look at a summary of statistics that can better help us determine which airline to avoid.
+```{r}
+airline_data <- raw_data %>%
+  group_by(Airline) %>%
+  summarise(
+    max = max(delayed),
+    min = min(delayed),
+    mean = mean(delayed),  
+    median = median(delayed),
+    standard_deviation = sd(delayed)
+  )
+print(airline_data)
+```
+
+AM west has much greater mean and median delay times than Alaska airlines as well as higher maximum and minimum delay times. 
