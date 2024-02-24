@@ -1,0 +1,104 @@
+---
+title: "Assignment_5_Adriana"
+author: "Adriana Medina"
+date: "2024-02-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+# Load packages
+```{r}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+```
+
+# Load raw data
+```{r}
+raw_data_path<-("https://raw.githubusercontent.com/amedina613/Data-607-Week-5-Assignment/main/Data%20607%20week%205%20raw.csv")
+
+raw_data <- read.csv(raw_data_path, header=T)
+print(raw_data)
+```
+# Clean data
+My goal is to have a final data set with the following column names: Airline, Destination, On time, and Delayed. 
+
+I will start off by removing that 3rd row. 
+
+```{r}
+raw_data <- slice(raw_data, -3)
+
+print(raw_data)
+```
+# I have some blank values so I'll fill in the blank with the corresponding airline. 
+
+```{r}
+names(raw_data)[1:2] <- c("Airline", "Arrival")
+
+raw_data[2, "Airline"] <- raw_data[1, "Airline"]
+
+raw_data[4, "Airline"] <- raw_data[3, "Airline"]
+
+print(raw_data)
+
+```
+# We now have a complete data set and no more NA or blank values
+I want to transpose the destination information and make a new column called "Destination". I'll use pivot_longer from tidyr for this. 
+
+```{r}
+raw_data <- raw_data %>%
+  pivot_longer(cols = c(Los.Angeles, Phoenix, San.Diego, San.Francisco, Seattle), names_to = "Destination", values_to = "num_of_flights")
+
+print(raw_data)
+```
+# For the Arrival column I want to pivot that data from long to wide. I will use pivot_wider for this.
+```{r}
+raw_data<- raw_data %>%
+  pivot_wider(names_from = Arrival, values_from = num_of_flights)
+
+print(raw_data)
+```
+# I'm satisfied with the tidying of the data and now we can perform analysis to compare the arrival delays for the two airlines.
+
+```{r}
+airline_del <- ggplot(raw_data, aes(x = Airline, y = delayed, fill = Airline)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Comparison of Delayed Flights for Different Airlines",
+       x = "Airline", y = "Number of Delayed Flights") +
+  theme_minimal()
+
+print(airline_del)
+```
+
+
+AM West has significantly more flight delays than Alaska Airlines
+
+
+```{r}
+delay_summary <- raw_data %>%
+  group_by(Airline) %>%
+  summarise(total_delayed = sum(delayed))
+
+print(delay_summary)
+
+```
+
+AM West has a total of 787 delayed flights. Alaska has a total of 501 delayed flights. 
+
+# Let's see how many flights have arrived on time.
+```{r}
+airline_ot <- ggplot(raw_data, aes(x = Airline, y = `on time`, fill = Airline)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Comparison of On Time Flights for Different Airlines",
+       x = "Airline", y = "Number of On-time Flights") +
+  theme_minimal()
+
+print(airline_ot)
+```
+
+AM West has significantly more on time arrivals than Alaska airlines.
