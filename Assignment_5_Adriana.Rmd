@@ -52,14 +52,14 @@ I want to transpose the destination information and make a new column called "De
 
 ```{r}
 raw_data <- raw_data %>%
-  pivot_longer(cols = c(Los.Angeles, Phoenix, San.Diego, San.Francisco, Seattle), names_to = "Destination", values_to = "Time")
+  pivot_longer(cols = c(Los.Angeles, Phoenix, San.Diego, San.Francisco, Seattle), names_to = "Destination", values_to = "num_on_time")
 
 print(raw_data)
 ```
 # For the Arrival column I want to pivot that data from long to wide. I will use pivot_wider for this.
 ```{r}
 raw_data<- raw_data %>%
-  pivot_wider(names_from = Arrival, values_from = Time)
+  pivot_wider(names_from = Arrival, values_from = num_on_time)
 
 print(raw_data)
 ```
@@ -84,7 +84,7 @@ AM West has significantly more flight delays than Alaska Airlines
 airline_ot <- ggplot(raw_data, aes(x = Airline, y = `on time`, fill = Airline)) +
   geom_bar(stat = "identity") +
   labs(title = "Comparison of On Time Flights for Different Airlines",
-       x = "Airline", y = "Number of On-time Flights") +
+       x = "Airline", y = "On-time Flights") +
   theme_minimal()
 
 print(airline_ot)
@@ -106,4 +106,4 @@ airline_data <- raw_data %>%
 print(airline_data)
 ```
 
-AM west has much greater mean and median delay times than Alaska airlines as well as higher maximum and minimum delay times. 
+AM west has much greater mean and median of delayed flights than Alaska airlines as well as higher maximum and minimum of delayed flights. 
